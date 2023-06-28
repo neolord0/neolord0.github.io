@@ -1,1 +1,113 @@
-Hello World
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>한글 손글씨 테스트</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script lang="js">
+        let empty = true
+        let pos = {x:0, y:0}
+        let rawImage
+        let model
+        let canvas
+        let ctx
+        let ks_code
+
+        function setPosition(e) {
+            pos.x = e.clientX - 20
+            pos.y = e.clientY - 90
+        }
+
+        function draw(e) {
+            if(e.buttons != 1)
+                return
+
+            empty = false
+
+            ctx.beginPath()
+            ctx.lineWidth = 15
+            ctx.lineCap = 'round'
+            ctx.strokeStyle = 'white'
+            ctx.moveTo(pos.x, pos.y)
+            setPosition(e);
+            ctx.lineTo(pos.x, pos.y)
+            ctx.stroke()
+
+            rawImage.src = canvas.toDataURL('image/png')
+        }
+
+        function erase() {
+            ctx.fillStyle = "black"
+            ctx.fillRect(0, 0, 300, 300)
+            empty = true
+        }
+
+        function save() {
+            if (empty == false) {
+                const grayscale = tf.browser.fromPixels(rawImage)
+                    .mean(2)
+                    .toFloat()
+                    .expandDims(0)
+                    .expandDims(-1)
+
+                const resized = tf.image.resizeBilinear(grayscale, [110, 110]).div(255)
+
+                let prediction = model.predict(resized)
+                let pIndex = tf.argMax(prediction, 1).dataSync();
+
+                document.getElementById('result4').value += ks_code[pIndex]
+
+                erase()
+            }
+        }
+
+        async function init() {
+            model = await tf.loadLayersModel("model/model.json")
+
+            fetch('ks_code.txt')
+                .then(response => response.text())
+                .then((data) => {
+                    ks_code = data.split('\n')
+                })
+
+            canvas = document.getElementById('canvas')
+            canvas.addEventListener("mousemove", draw)
+            canvas.addEventListener("mousedown", setPosition)
+            canvas.addEventListener("mouseenter", setPosition)
+
+            rawImage = document.getElementById('canvasimg')
+            ctx = canvas.getContext("2d")
+            ctx.fillStyle = "black"
+            ctx.fillRect(0, 0, 300, 300)
+
+            let saveButton = document.getElementById('sb')
+            saveButton.addEventListener("click", save)
+            let clearButton = document.getElementById('cb')
+            clearButton.addEventListener("click", erase)
+        }
+        init()
+    </script>
+</head>
+<body>
+    <H1>한글 손글씨 분류기</H1>
+    <table>
+        <tr>
+            <td>
+                <canvas id="canvas" width="300" height="300" style="border:3px solid gray;"></canvas>
+                <img id="canvasimg" style="display:none;">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="button" value="분류" id="sb" size="48">
+                <input type="button" value="지우기" id="cb" size="23">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                모델4:<input type="text" value="" id="result4" size="48">
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

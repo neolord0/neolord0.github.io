@@ -62,6 +62,7 @@
         }
 
         async function init() {
+
             model = await tf.loadLayersModel("model/model.json")
 
             fetch('ks_code.txt')
@@ -84,12 +85,14 @@
             saveButton.addEventListener("click", save)
             let clearButton = document.getElementById('cb')
             clearButton.addEventListener("click", erase)
+
+            document.getElementById("title").innerHTML = "한글 손글씨 분류기 모델 로딩 완료..."
         }
         init()
     </script>
 </head>
 <body>
-    <H1>한글 손글씨 분류기</H1>
+<h1><span id="title">한글 손글씨 분류기 모델 로딩중...</span></h1>
     <table>
         <tr>
             <td>

@@ -76,9 +76,9 @@
                 })
 
             canvas = document.getElementById('canvas')
-            canvas.addEventListener("mousemove", draw)
-            canvas.addEventListener("mousedown", setPosition)
-            canvas.addEventListener("mouseenter", setPosition)
+            canvas.addEventListener("touchmove", draw)
+            canvas.addEventListener("touchstart", setPosition)
+            canvas.addEventListener("touchend", setPosition)
 
             rawImage = document.getElementById('canvasimg')
             ctx = canvas.getContext("2d")

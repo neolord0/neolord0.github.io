@@ -12,14 +12,42 @@
         let canvas
         let ctx
         let ks_code
+        let touching = false
 
         function setPosition(e) {
             pos.x = e.clientX - 20
             pos.y = e.clientY - 90
         }
+        function touchStart(e) {
+            touching = true
+            setPosition(e)
+        }
+
+        function touchEnd(e) {
+            touching = false
+            setPosition(e)
+        }
 
         function draw(e) {
             if(e.buttons != 1)
+                return
+
+            empty = false
+
+            ctx.beginPath()
+            ctx.lineWidth = 15
+            ctx.lineCap = 'round'
+            ctx.strokeStyle = 'white'
+            ctx.moveTo(pos.x, pos.y)
+            setPosition(e);
+            ctx.lineTo(pos.x, pos.y)
+            ctx.stroke()
+
+            rawImage.src = canvas.toDataURL('image/png')
+        }
+
+        function touchDraw(e) {
+            if(touching == false)
                 return
 
             empty = false
@@ -76,9 +104,13 @@
                 })
 
             canvas = document.getElementById('canvas')
-            canvas.addEventListener("touchmove", draw)
-            canvas.addEventListener("touchstart", setPosition)
-            canvas.addEventListener("touchend", setPosition)
+            canvas.addEventListener("mousemove", draw)
+            canvas.addEventListener("mousedown", setPosition)
+            canvas.addEventListener("mouseenter", setPosition)
+            canvas.addEventListener("touchmove", touchDraw)
+            canvas.addEventListener("touchstart", touchStart)
+            canvas.addEventListener("touchend", touchEnd)
+            canvas.addEventListener("touchcancel", touchEnd)
 
             rawImage = document.getElementById('canvasimg')
             ctx = canvas.getContext("2d")

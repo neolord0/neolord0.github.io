@@ -53,17 +53,21 @@
                 const resized = tf.image.resizeBilinear(grayscale, [110, 110]).div(255)
 
                 let prediction = model.predict(resized)
-                let pIndex = tf.argMax(prediction, 1).dataSync();
+                prediction.array().then(function(result) {
+                    const x = tf.tensor1d(result[0][0])
 
-                document.getElementById('result4').value += ks_code[pIndex]
+                    let pIndex = x.argMax().dataSync();
+                    document.getElementById('result4').value += ks_code[pIndex]
 
-                erase()
+                    erase()
+                });
+
+
             }
         }
 
         async function init() {
-
-            model = await tf.loadLayersModel("model/model.json")
+            model = await tf.loadLayersModel("model_crnn/model.json")
 
             fetch('ks_code.txt')
                 .then(response => response.text())

@@ -1,2 +1,3 @@
 # neolord0.github.io
-aassa
+
+한글 손글씨 CNN, CRNN 학습 결과....
